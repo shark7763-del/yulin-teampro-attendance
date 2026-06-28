@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1e3a5f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="育林出席">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>TeamPro 體育班出勤戰情室</title>
+<style>
+  :root{
+    --navy:#1e3a5f; --navy-dark:#142840; --navy-light:#2d5080; --blue:#3b6ea5;
+    --bg:#eef2f7; --card:#ffffff;
+    --green:#2e9e5b; --orange:#e8821e; --bluest:#2f6fd0; --red:#d9433f; --gray:#9aa5b1;
+    --text:#1f2d3d; --muted:#6b7a8d; --line:#dde4ec;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;font-family:"Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;
+       background:var(--bg);color:var(--text);font-size:16px;}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy-light));color:#fff;
+         padding:13px 16px;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+  header .title{font-size:17px;font-weight:700;letter-spacing:.5px;}
+  header .userbar{display:flex;justify-content:space-between;align-items:center;margin-top:5px;font-size:13px;opacity:.92;}
+  header .userbar button{background:rgba(255,255,255,.18);border:none;color:#fff;padding:5px 12px;border-radius:16px;font-size:13px;}
+  nav{display:flex;background:var(--navy-dark);position:sticky;top:70px;z-index:40;}
+  nav button{flex:1;background:none;border:none;color:#b9c6d6;padding:11px 4px;font-size:13px;border-bottom:3px solid transparent;}
+  nav button.active{color:#fff;border-bottom-color:#7fb0e0;font-weight:700;}
+  main{padding:13px;max-width:820px;margin:0 auto;}
+  .card{background:var(--card);border-radius:14px;padding:15px;margin-bottom:13px;box-shadow:0 2px 6px rgba(30,58,95,.08);}
+  .card h2{margin:0 0 11px;font-size:15px;color:var(--navy);border-left:5px solid var(--blue);padding-left:10px;}
+  label{display:block;font-size:13px;color:var(--muted);margin:9px 0 4px;}
+  input,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font-size:16px;background:#fff;color:var(--text);}
+  .btn{display:block;width:100%;padding:14px;border:none;border-radius:12px;font-size:16px;font-weight:700;color:#fff;background:var(--navy);margin-top:11px;}
+  .btn:active{transform:scale(.99);}
+  .btn.blue{background:var(--blue);} .btn.green{background:var(--green);} .btn.line{background:#06c755;}
+  .btn.ghost{background:#fff;color:var(--navy);border:2px solid var(--navy);}
+  .btn.sm{padding:9px;font-size:14px;border-radius:9px;margin:0;width:auto;}
+  .row2{display:flex;gap:10px;} .row2>*{flex:1;}
+  .row3{display:flex;gap:8px;} .row3>*{flex:1;}
+  .hidden{display:none!important;}
+  .home-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:13px;}
+  .compact-tools{padding:10px;}
+  .bottom-actions{position:sticky;bottom:0;z-index:60;background:#fff;border-top:1px solid var(--line);
+    padding:10px 13px;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 -13px;box-shadow:0 -4px 14px rgba(30,58,95,.12);}
+  .bottom-actions .btn{margin-top:0;}
+
+  /* 登入 */
+  #loginView{max-width:380px;margin:7vh auto;padding:0 18px;}
+  #loginView .logo{text-align:center;color:var(--navy);margin-bottom:16px;}
+  #loginView .logo .big{font-size:44px;}
+  #loginView .logo .t{font-size:19px;font-weight:700;margin-top:6px;line-height:1.3;}
+  #loginView .logo .s{font-size:13px;color:var(--muted);}
+  .idbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+  .idbtn{padding:18px 8px;border:2px solid var(--navy);border-radius:12px;background:#fff;color:var(--navy);font-size:16px;font-weight:700;}
+  .idbtn:active{background:var(--navy);color:#fff;}
+  .idbtn.admin{grid-column:1 / -1;border-color:var(--blue);color:var(--blue);}
+  #pinWho{font-weight:700;color:var(--navy);font-size:18px;text-align:center;}
+  .pindots{display:flex;justify-content:center;gap:14px;margin:16px 0 6px;}
+  .pindots .dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--navy);background:#fff;}
+  .pindots .dot.on{background:var(--navy);}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;}
+  .keypad button{padding:18px 0;font-size:24px;font-weight:700;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--navy);}
+  .keypad button:active{background:var(--bg);}
+  .shake{animation:shk .35s;}
+  @keyframes shk{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+
+  /* 戰情室 */
+  .hero{background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;}
+  .hero .d{font-size:22px;font-weight:800;}
+  .hero .w{font-size:14px;opacity:.9;margin-top:2px;}
+  .hero .ses{display:inline-block;margin-top:9px;background:rgba(255,255,255,.2);padding:6px 14px;border-radius:20px;font-size:15px;font-weight:700;}
+  .hero select{margin-top:11px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);color:#fff;}
+  .hero select option{color:var(--text);}
+  .statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+  .stat{background:#f4f7fb;border-radius:12px;padding:11px 6px;text-align:center;}
+  .stat .n{font-size:26px;font-weight:800;line-height:1;}
+  .stat .l{font-size:12px;color:var(--muted);margin-top:5px;}
+  .stat.expected .n{color:var(--navy);} .stat.present .n{color:var(--green);}
+  .stat.late .n{color:var(--orange);} .stat.leave .n{color:var(--bluest);}
+  .stat.absent .n{color:var(--red);} .stat.unmarked .n{color:var(--gray);}
+
+  /* 點名統計列（固定） */
+  .bar{position:sticky;top:109px;z-index:30;display:flex;gap:5px;background:var(--card);
+       border-radius:12px;padding:9px 7px;margin-bottom:10px;box-shadow:0 2px 6px rgba(30,58,95,.10);}
+  .bar div{flex:1;text-align:center;font-size:12px;color:var(--muted);}
+  .bar div b{display:block;font-size:19px;font-weight:800;color:var(--text);}
+  .bar .b-present b{color:var(--green);} .bar .b-late b{color:var(--orange);}
+  .bar .b-leave b{color:var(--bluest);} .bar .b-absent b{color:var(--red);} .bar .b-un b{color:var(--gray);}
+
+  /* 篩選 chips */
+  .chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;}
+  .chip{flex:0 0 auto;padding:8px 14px;border-radius:18px;border:1.5px solid var(--line);background:#fff;
+        color:var(--muted);font-size:14px;font-weight:600;}
+  .chip.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+
+  /* 學生卡 */
+  .stu{border-radius:14px;padding:13px;margin-bottom:11px;border-left:6px solid var(--gray);}
+  .stu.s-out{border-left-color:var(--green);} .stu.s-late{border-left-color:var(--orange);}
+  .stu.s-leave{border-left-color:var(--bluest);} .stu.s-absent{border-left-color:var(--red);}
+  .stu .top{display:flex;justify-content:space-between;align-items:center;}
+  .stu .name{font-size:18px;font-weight:800;}
+  .stu .meta{font-size:12px;color:var(--muted);margin-top:2px;}
+  .badge{font-size:13px;font-weight:700;padding:4px 12px;border-radius:14px;background:#eceff3;color:var(--gray);}
+  .badge.s-out{background:#e3f4ea;color:var(--green);} .badge.s-late{background:#fcefe0;color:var(--orange);}
+  .badge.s-leave{background:#e5eefb;color:var(--bluest);} .badge.s-absent{background:#fae6e5;color:var(--red);}
+  .bigbtns{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:11px;}
+  .bigbtns button{padding:14px 2px;border:2px solid var(--line);background:#fff;border-radius:11px;
+        font-size:14px;font-weight:700;color:var(--muted);line-height:1.3;}
+  .bigbtns button .ic{display:block;font-size:20px;margin-bottom:2px;}
+  .bigbtns button.on[data-s="出席"]{background:var(--green);color:#fff;border-color:transparent;}
+  .bigbtns button.on[data-s="遲到"]{background:var(--orange);color:#fff;border-color:transparent;}
+  .bigbtns button.on[data-s="請假"]{background:var(--bluest);color:#fff;border-color:transparent;}
+  .bigbtns button.on[data-s="未到"]{background:var(--red);color:#fff;border-color:transparent;}
+  .bigbtns button.on[data-s="早退"],.bigbtns button.on[data-s="更多"]{background:var(--navy);color:#fff;border-color:transparent;}
+  .detail{margin-top:10px;}
+  .miniopts{display:flex;flex-wrap:wrap;gap:6px;}
+  .miniopts button{padding:8px 12px;border:1.5px solid var(--line);background:#fff;border-radius:16px;font-size:13px;color:var(--muted);font-weight:600;}
+  .miniopts button.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .detail input.note{margin-top:8px;font-size:14px;padding:9px;}
+
+  /* 需要關心 */
+  .care{border:1px solid #f0d6d4;background:#fdf4f3;border-radius:12px;padding:11px;margin-bottom:9px;}
+  .care .nm{font-weight:800;color:var(--navy);}
+  .care .rs{margin-top:5px;display:flex;flex-wrap:wrap;gap:5px;}
+  .care .rs span{font-size:12px;background:#f8dad7;color:#a8322e;padding:2px 8px;border-radius:10px;}
+
+  /* 表格 */
+  .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{border-collapse:collapse;width:100%;font-size:13px;min-width:520px;}
+  th,td{border:1px solid var(--line);padding:7px 6px;text-align:center;}
+  th{background:var(--navy);color:#fff;font-weight:600;}
+  td.name{text-align:left;font-weight:700;white-space:nowrap;position:sticky;left:0;background:#fff;}
+  th.name{position:sticky;left:0;z-index:2;}
+  .light{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:middle;}
+  .light.green{background:var(--green);} .light.yellow{background:var(--orange);}
+  .light.red{background:var(--red);} .light.gray{background:var(--gray);}
+  .ranges{display:flex;gap:8px;}
+  .ranges button{flex:1;padding:11px;border:1.5px solid var(--navy);background:#fff;color:var(--navy);border-radius:10px;font-weight:700;}
+  .ranges button.on{background:var(--navy);color:#fff;}
+  .teamrate{text-align:center;padding:6px 0;}
+  .teamrate .big{font-size:40px;font-weight:800;color:var(--navy);}
+
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy-dark);color:#fff;
+         padding:12px 22px;border-radius:24px;font-size:14px;z-index:200;opacity:0;transition:.3s;pointer-events:none;max-width:90%;}
+  #toast.show{opacity:.96;}
+  #installAppBtn{position:fixed;right:14px;bottom:64px;z-index:120;background:var(--green);color:#fff;border:none;
+         border-radius:999px;padding:11px 15px;font-size:14px;font-weight:800;box-shadow:0 4px 12px rgba(30,58,95,.22);}
+  #netStatus{position:fixed;left:0;right:0;bottom:0;z-index:130;background:#d9433f;color:#fff;text-align:center;
+         padding:9px 12px;font-size:13px;font-weight:700;}
+  #netStatus.hidden{display:none;}
+  #loading{position:fixed;inset:0;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;z-index:300;}
+  .spin{width:42px;height:42px;border:4px solid var(--line);border-top-color:var(--navy);border-radius:50%;animation:r 1s linear infinite;}
+  @keyframes r{to{transform:rotate(360deg);}}
+  .modal{position:fixed;inset:0;background:rgba(20,40,64,.55);z-index:150;display:flex;align-items:flex-end;justify-content:center;}
+  .modal .box{background:#fff;width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:18px;max-height:88vh;overflow:auto;}
+  .modal h3{margin:0 0 10px;color:var(--navy);}
+  .modal textarea{width:100%;min-height:240px;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:14px;font-family:inherit;line-height:1.7;}
+  .empty{text-align:center;color:var(--muted);padding:26px 10px;}
+  .tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:#e7eef7;color:var(--navy);margin-left:6px;}
+</style>
+</head>
+<body>
+
+<!-- ============ 登入 ============ -->
+<div id="loginView">
+  <div class="logo">
+    <div class="big">🏆</div>
+    <div class="t">育林國中體育班<br>教練戰情室</div>
+    <div class="s">晨操 · 專長訓練 · 晚自習</div>
+  </div>
+  <div class="card" id="pickStep">
+    <label>請選擇身分</label>
+    <div id="userBtns" class="idbtns"></div>
+  </div>
+  <div class="card hidden" id="pinStep">
+    <div id="pinWho"></div>
+    <div class="pindots" id="pinDots"></div>
+    <div class="keypad" id="keypad"></div>
+    <button class="btn ghost" style="margin-top:14px;" onclick="backToPick()">← 返回選身分</button>
+  </div>
+</div>
+
+<!-- ============ 主系統 ============ -->
+<div id="appView" class="hidden">
+  <header>
+    <div class="title">TeamPro 體育班出勤戰情室</div>
+    <div class="userbar"><span id="whoami"></span><button onclick="logout()">登出</button></div>
+  </header>
+  <nav id="nav">
+    <button data-tab="home" class="active" onclick="switchTab('home')">首頁</button>
+    <button data-tab="attend" onclick="openAttendance('today')">今日點名</button>
+    <button data-tab="makeup" onclick="openAttendance('makeup')">補登修改</button>
+    <button data-tab="report" onclick="switchTab('report')">本月統計</button>
+    <button data-tab="line" onclick="switchTab('line')">LINE</button>
+  </nav>
+  <main>
+
+    <!-- 戰情室 -->
+    <section id="tab-home">
+      <div class="card hero">
+        <div class="d" id="homeDate"></div>
+        <div class="w" id="homeWeek"></div>
+        <div class="ses" id="homeSes"></div>
+        <select id="homeSpec" class="hidden" onchange="loadHome()"></select>
+      </div>
+      <div class="card statgrid" id="homeStats"></div>
+      <div class="home-actions">
+        <button class="btn" onclick="openAttendance('today')">今日點名</button>
+        <button class="btn blue" onclick="openAttendance('makeup')">補登 / 修改</button>
+        <button class="btn ghost" onclick="switchTab('report')">本月統計</button>
+        <button class="btn line" onclick="switchTab('line')">LINE 回報</button>
+        <button class="btn ghost" onclick="switchTab('export')">報表匯出</button>
+      </div>
+      <div class="card">
+        <h2>異常學生優先追蹤</h2>
+        <div id="careList"><div class="empty">載入中…</div></div>
+      </div>
+    </section>
+
+    <!-- 點名 -->
+    <section id="tab-attend" class="hidden">
+      <div class="card">
+        <h2 id="attendTitle">今日點名</h2>
+        <div class="row2">
+          <div><label>日期</label><input type="date" id="atDate"></div>
+          <div><label>課程時段</label><select id="atSession"></select></div>
+        </div>
+        <div class="row2">
+          <div><label>隊伍 / 項目</label><select id="atSpec"></select></div>
+          <div><label>地點</label><input id="atLocation" placeholder="操場 / 道館 / 教室"></div>
+        </div>
+        <label>負責教練</label><input id="atCoach" placeholder="負責教練">
+        <button class="btn ghost" onclick="loadAttend()">載入名單</button>
+      </div>
+      <div class="card compact-tools">
+        <input id="atSearch" placeholder="搜尋學生" oninput="renderAttend()">
+        <div class="row2">
+          <select id="gradeFilter" onchange="renderAttend()"><option value="">全部年級</option></select>
+          <select id="specFilter" onchange="renderAttend()"><option value="">全部項目</option></select>
+        </div>
+      </div>
+      <div id="atBar" class="bar hidden"></div>
+      <div id="atChips" class="chips hidden"></div>
+      <div id="attendList"></div>
+      <div id="attendActions" class="bottom-actions hidden">
+        <button class="btn green" onclick="markAll('出席')">一鍵全員出席</button>
+        <button class="btn" onclick="submitAttend()">送出點名</button>
+      </div>
+    </section>
+
+    <!-- 報表 -->
+    <section id="tab-report" class="hidden">
+      <div class="card">
+        <h2>本月統計</h2>
+        <div class="ranges" id="rpRanges">
+          <button data-r="today" onclick="setRange('today')">今日</button>
+          <button data-r="week" onclick="setRange('week')">本週</button>
+          <button data-r="month" class="on" onclick="setRange('month')">本月</button>
+        </div>
+        <div class="row2" style="margin-top:10px;">
+          <div><label>基準日</label><input type="date" id="rpDate" onchange="loadReport()"></div>
+          <div><label>專項</label><select id="rpSpec" onchange="loadReport()"></select></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="teamrate"><div class="big" id="rpTeam">-</div><div style="color:var(--muted);font-size:13px;">全隊出席率</div></div>
+        <div id="rpRangeTxt" style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:8px;"></div>
+        <div class="tablewrap"><div id="reportTable"></div></div>
+      </div>
+    </section>
+
+    <!-- LINE 回報 -->
+    <section id="tab-line" class="hidden">
+      <div class="card">
+        <h2>LINE 回報</h2>
+        <div class="row2">
+          <div><label>日期</label><input type="date" id="lineDate"></div>
+          <div><label>課程時段</label><select id="lineSession"></select></div>
+        </div>
+        <label>隊伍 / 項目</label><select id="lineSpec" onchange="loadLineCare()"></select>
+        <button class="btn line" onclick="lineFromServer('coach')">產生點名回報</button>
+      </div>
+      <div class="card">
+        <h2>個別家長通知</h2>
+        <div id="lineCareList"></div>
+      </div>
+    </section>
+
+    <!-- 報表中心 -->
+    <section id="tab-export" class="hidden">
+      <div class="card">
+        <h2>報表中心</h2>
+        <label>月份</label><input type="month" id="exportMonth">
+        <label>隊伍 / 項目</label><select id="exportSpec"></select>
+        <label>報表類型</label>
+        <select id="exportType">
+          <option>全隊出勤月報</option>
+          <option>個人出勤紀錄</option>
+          <option>課程出席統計</option>
+          <option>異常學生追蹤表</option>
+        </select>
+        <button class="btn blue" onclick="exportToSheet()">產生 Google Sheets 報表</button>
+        <button class="btn ghost" onclick="copyCSV()">複製月報 CSV</button>
+      </div>
+    </section>
+
+    <!-- 學生 -->
+    <section id="tab-students" class="hidden">
+      <div class="card">
+        <h2>學生資料</h2>
+        <select id="stSpec" onchange="loadStudents()"></select>
+        <button class="btn blue" id="addStuBtn" onclick="openStudentForm()">＋ 新增學生</button>
+      </div>
+      <div id="studentList"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- 學生表單 -->
+<div id="studentModal" class="modal hidden">
+  <div class="box">
+    <h3 id="stuFormTitle">新增學生</h3>
+    <div class="row2"><div><label>學生ID</label><input id="f_id"></div><div><label>姓名</label><input id="f_name"></div></div>
+    <div class="row2"><div><label>年級</label><input id="f_grade" placeholder="七年級"></div><div><label>班級</label><input id="f_cls" placeholder="701"></div></div>
+    <label>專項</label><select id="f_specialty"></select>
+    <div class="row2"><div><label>家長姓名</label><input id="f_pname"></div><div><label>家長LINE/聯絡</label><input id="f_pcontact"></div></div>
+    <div class="row2"><div><label>家長查詢碼</label><input id="f_pcode" placeholder="留空自動產生"></div>
+      <div><label>狀態</label><select id="f_status"><option>在學</option><option>休學</option><option>畢業</option></select></div></div>
+    <label>晚自習報名（勾選有上的星期）</label>
+    <div id="f_studyHall" class="miniopts" style="margin-top:4px;"></div>
+    <button class="btn" onclick="saveStudentForm()">儲存</button>
+    <button class="btn ghost" onclick="closeModal('studentModal')">取消</button>
+  </div>
+</div>
+
+<!-- 出席紀錄 -->
+<div id="histModal" class="modal hidden">
+  <div class="box">
+    <h3 id="histTitle">出席紀錄</h3>
+    <div id="histBody"></div>
+    <button class="btn ghost" onclick="closeModal('histModal')">關閉</button>
+  </div>
+</div>
+
+<!-- LINE 文字 -->
+<div id="lineModal" class="modal hidden">
+  <div class="box">
+    <h3 id="lineTitle">LINE 回報</h3>
+    <textarea id="lineText" readonly></textarea>
+    <button class="btn line" onclick="copyLine()">📋 複製文字</button>
+    <button class="btn ghost" onclick="closeModal('lineModal')">關閉</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<button id="installAppBtn" type="button">安裝教學</button>
+<div id="netStatus" class="hidden">目前離線，送出資料前請確認網路已恢復</div>
+<div id="loading" class="hidden"><div class="spin"></div></div>
+
+<div id="installGuideModal" class="modal hidden">
+  <div class="box">
+    <h3>安裝教學</h3>
+    <div id="installGuideText" style="font-size:14px;line-height:1.8;color:var(--text);white-space:pre-line;"></div>
+    <button id="installNowBtn" class="btn green hidden" type="button">立即安裝</button>
+    <button class="btn ghost" onclick="closeModal('installGuideModal')">關閉</button>
+  </div>
+</div>
+
+<script>
+var deferredInstallPrompt=null;
+var DEFAULT_API_URL='https://script.google.com/macros/s/AKfycbw57gZN1eOqmfCfsRl5efB8eCheZxx3hO7C-w16DL82KWVxy1zkoplEAevwSudE1riA/exec';
+var API_URL=localStorage.getItem('teampro_api_url')||DEFAULT_API_URL;
+
+function setupPwa(){
+  var installBtn=$('installAppBtn');
+  var installNowBtn=$('installNowBtn');
+  window.addEventListener('beforeinstallprompt',function(e){
+    e.preventDefault();
+    deferredInstallPrompt=e;
+    installNowBtn.classList.remove('hidden');
+  });
+  installBtn.addEventListener('click',function(){
+    renderInstallGuide();
+    show($('installGuideModal'));
+  });
+  installNowBtn.addEventListener('click',function(){
+    if(!deferredInstallPrompt){
+      toast('請用瀏覽器選單「加入主畫面」安裝');
+      return;
+    }
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.finally(function(){deferredInstallPrompt=null;});
+  });
+  window.addEventListener('appinstalled',function(){installNowBtn.classList.add('hidden');toast('App 已安裝');});
+
+  var netStatus=$('netStatus');
+  function syncNetStatus(){netStatus.classList.toggle('hidden',navigator.onLine);}
+  window.addEventListener('online',function(){syncNetStatus();toast('網路已恢復');syncPendingAttendance();});
+  window.addEventListener('offline',syncNetStatus);
+  syncNetStatus();
+
+  var isAppsScript=/script\.google\.com|googleusercontent\.com/.test(location.hostname);
+  if('serviceWorker' in navigator && !isAppsScript){
+    navigator.serviceWorker.register('./service-worker.js').catch(function(){});
+  }
+}
+function syncPendingAttendance(){
+  var raw=localStorage.getItem('teampro_pending_attendance');
+  if(!raw||!USER)return;
+  try{
+    var payload=JSON.parse(raw);
+    if(!confirm('偵測到離線暫存點名，是否立即同步？'))return;
+    loading(true);
+    call('saveAttendance',[payload]).then(function(r){
+      loading(false);localStorage.removeItem('teampro_pending_attendance');
+      toast('離線點名已同步（新增'+r.added+'／更新'+r.updated+'）');
+    }).catch(function(e){loading(false);toast('同步失敗：'+e.message);});
+  }catch(e){localStorage.removeItem('teampro_pending_attendance');}
+}
+
+function renderInstallGuide(){
+  var ua=navigator.userAgent||'';
+  var text;
+  if(/iPhone|iPad|iPod/i.test(ua)){
+    text='1. 用 Safari 開啟這個網址\n2. 點底部或上方的分享按鈕\n3. 選「加入主畫面」\n4. 命名後按加入';
+  }else if(/Android/i.test(ua)){
+    text='1. 用 Chrome 開啟這個網址\n2. 點右上角選單\n3. 選「安裝應用程式」或「加入主畫面」\n4. 確認安裝';
+  }else{
+    text='1. 用 Chrome 或 Edge 開啟這個網址\n2. 看瀏覽器右上角是否有安裝圖示或選單\n3. 選「安裝」或「建立捷徑」\n4. 若沒有安裝選項，仍可直接加入書籤使用';
+  }
+  $('installGuideText').textContent=text;
+  $('installNowBtn').classList.toggle('hidden',!deferredInstallPrompt);
+}
+
+/* ===================== 常數／狀態 ===================== */
+var USER=null;
+var SP=['田徑','跆拳道','武術'];
+var SESSIONS=['晨操','專長訓練','體育班課程','暑期集訓','晚自習','道館訓練','比賽','移地訓練','其他'];
+var STATUS_LIST=['出席','遲到','請假','缺席','更多'];
+var FULL_STATUS=['出席','遲到','早退','病假','事假','公假','傷病觀察','無故缺席','賽事公假','停訓','移地訓練'];
+var STATUS_ICON={'出席':'✓','遲到':'△','請假':'○','缺席':'×','更多':'⋯','早退':'↩','病假':'○','事假':'○','公假':'○','傷病觀察':'◇','無故缺席':'×','賽事公假':'○','停訓':'−','移地訓練':'○'};
+var STATUS_CLASS={'出席':'s-out','遲到':'s-late','早退':'s-late','病假':'s-leave','事假':'s-leave','公假':'s-leave','傷病觀察':'s-leave','賽事公假':'s-leave','停訓':'s-leave','移地訓練':'s-leave','無故缺席':'s-absent'};
+var LEAVE_STATUS=['病假','事假','公假','傷病觀察','賽事公假','停訓','移地訓練'];
+var LATE_OPTS=['5分鐘內','10分鐘內','15分鐘以上'];
+var WEEK_CH=['一','二','三','四','五'];
+
+var attendStudents=[], attendState={}, curFilter='全部', attendMode='today';
+var curRange='month', lastReport=null, lastLineText='';
+
+/* ===================== 工具 ===================== */
+function $(id){return document.getElementById(id);}
+function show(el){el.classList.remove('hidden');}
+function hide(el){el.classList.add('hidden');}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function toast(msg){var t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+function loading(on){on?show($('loading')):hide($('loading'));}
+function fmtLocal(d){var y=d.getFullYear(),m=('0'+(d.getMonth()+1)).slice(-2),dd=('0'+d.getDate()).slice(-2);return y+'-'+m+'-'+dd;}
+function todayStr(){return fmtLocal(new Date());}
+function weekdayName(dateStr){return ['日','一','二','三','四','五','六'][new Date(dateStr+'T12:00:00').getDay()];}
+function autoSession(){var h=new Date().getHours();return h<12?'晨操':(h<18?'專長訓練':'晚自習');}
+function isActual(st){return ['出席','遲到','早退'].indexOf(st)>=0;}
+function isLeave(st){return ['病假','事假','公假','傷病觀察','賽事公假','停訓','移地訓練'].indexOf(st)>=0;}
+function isAbnormal(st){return ['遲到','早退','病假','事假','無故缺席'].indexOf(st)>=0;}
+
+function call(fn,args){
+  return new Promise(function(resolve,reject){
+    if(window.google&&google.script&&google.script.run){
+      google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[fn].apply(null,args||[]);
+      return;
+    }
+    fetch(API_URL,{method:'POST',body:JSON.stringify({fn:fn,args:args||[]})})
+      .then(function(r){return r.json();})
+      .then(function(res){if(res&&res.ok)resolve(res.data);else reject(new Error((res&&res.error)||'API 呼叫失敗'));})
+      .catch(reject);
+  });
+}
+
+/* ===================== 登入 ===================== */
+var loginUsers=[], pickedUser=null, pinBuf='';
+function loadLoginUsers(){
+  renderKeypad();
+  call('getUsers',[]).then(function(list){loginUsers=list;renderUserBtns();})
+    .catch(function(e){toast('載入身分失敗：'+e.message);});
+}
+function renderUserBtns(){
+  var box=$('userBtns');box.innerHTML='';
+  if(loginUsers.length===0){box.innerHTML='<p style="color:var(--muted);font-size:13px;">尚無帳號，請先執行 setup()</p>';return;}
+  loginUsers.forEach(function(u){
+    var b=document.createElement('button');
+    b.className='idbtn'+(u.role==='admin'?' admin':'');
+    b.textContent=u.name;b.onclick=function(){pickUser(u);};
+    box.appendChild(b);
+  });
+}
+function pickUser(u){pickedUser=u;pinBuf='';$('pinWho').textContent='👤 '+u.name;renderDots();hide($('pickStep'));show($('pinStep'));}
+function backToPick(){pickedUser=null;pinBuf='';hide($('pinStep'));show($('pickStep'));}
+function renderKeypad(){
+  var k=$('keypad');k.innerHTML='';
+  ['1','2','3','4','5','6','7','8','9','','0','⌫'].forEach(function(key){
+    var b=document.createElement('button');
+    if(key===''){b.style.visibility='hidden';b.disabled=true;}
+    b.textContent=key;b.onclick=function(){pressKey(key);};k.appendChild(b);
+  });
+}
+function pressKey(key){
+  if(key==='')return;
+  if(key==='⌫'){pinBuf=pinBuf.slice(0,-1);renderDots();return;}
+  if(pinBuf.length>=4)return;
+  pinBuf+=key;renderDots();
+  if(pinBuf.length===4)submitPin();
+}
+function renderDots(){var d=$('pinDots');d.innerHTML='';for(var i=0;i<4;i++){var s=document.createElement('span');s.className='dot'+(i<pinBuf.length?' on':'');d.appendChild(s);}}
+function submitPin(){
+  loading(true);
+  call('login',[pickedUser.account,pinBuf]).then(function(r){
+    loading(false);
+    if(!r.ok){$('pinDots').classList.add('shake');setTimeout(function(){$('pinDots').classList.remove('shake');},400);toast('PIN 錯誤');pinBuf='';renderDots();return;}
+    USER=r;localStorage.setItem('user',JSON.stringify(r));enterApp();
+  }).catch(function(e){loading(false);toast('連線失敗：'+e.message);pinBuf='';renderDots();});
+}
+function logout(){localStorage.removeItem('user');location.reload();}
+
+function enterApp(){
+  hide($('loginView'));show($('appView'));
+  $('whoami').textContent='👤 '+USER.name+'（'+(USER.role==='admin'?'管理員':USER.specialty+' 教練')+'）';
+  if(USER.role!=='admin')$('addStuBtn').classList.add('hidden');
+  fillSpecSelectors();
+  $('atDate').value=todayStr();
+  $('atSession').value=autoSession();
+  $('rpDate').value=todayStr();
+  $('lineDate').value=todayStr();
+  $('lineSession').value=autoSession();
+  $('exportMonth').value=todayStr().slice(0,7);
+  $('atCoach').value=USER.name;
+  buildStudyHallBoxes();
+  switchTab('home');
+}
+function fillSpecSelectors(){
+  var opts=USER.role==='admin'?['全部'].concat(SP):[USER.specialty];
+  ['atSpec','rpSpec','stSpec','lineSpec','exportSpec'].forEach(function(id){
+    var sel=$(id);sel.innerHTML='';
+    opts.forEach(function(o){var op=document.createElement('option');op.textContent=o;sel.appendChild(op);});
+  });
+  ['atSession','lineSession'].forEach(function(id){
+    var sel=$(id);sel.innerHTML='';
+    SESSIONS.forEach(function(o){var op=document.createElement('option');op.textContent=o;sel.appendChild(op);});
+  });
+  if(USER.role==='admin'){
+    var hs=$('homeSpec');hs.innerHTML='';show(hs);
+    opts.forEach(function(o){var op=document.createElement('option');op.textContent=o;hs.appendChild(op);});
+  }
+  var fs=$('f_specialty');fs.innerHTML='';
+  (USER.role==='admin'?SP:[USER.specialty]).forEach(function(o){var op=document.createElement('option');op.textContent=o;fs.appendChild(op);});
+}
+function homeSpecVal(){return USER.role==='admin'?$('homeSpec').value:USER.specialty;}
+
+/* ===================== 分頁 ===================== */
+function switchTab(tab){
+  ['home','attend','report','students','line','export'].forEach(function(t){if($('tab-'+t))$('tab-'+t).classList.toggle('hidden',t!==tab);});
+  document.querySelectorAll('#nav button').forEach(function(b){b.classList.toggle('active',b.dataset.tab===tab);});
+  if(tab==='home')loadHome();
+  if(tab==='report')loadReport();
+  if(tab==='line')loadLineCare();
+  if(tab==='students')loadStudents();
+}
+function openAttendance(mode){
+  attendMode=mode||'today';
+  switchTab('attend');
+  $('attendTitle').textContent=attendMode==='makeup'?'補登 / 修改':'今日點名';
+  if(attendMode==='today'){$('atDate').value=todayStr();$('atSession').value=autoSession();}
+  loadAttend();
+}
+
+/* ===================== 戰情室 ===================== */
+function loadHome(){
+  var today=todayStr();
+  $('homeDate').textContent=today.replace(/-/g,' / ');
+  $('homeWeek').textContent='星期'+weekdayName(today);
+  $('homeSes').textContent='目前時段：'+autoSession();
+  loading(true);
+  Promise.all([
+    call('getDashboard',[homeSpecVal(),today,autoSession()]),
+    call('getCareList',[homeSpecVal()])
+  ]).then(function(res){
+    loading(false);renderHomeStats(res[0]);renderCare(res[1]);
+  }).catch(function(e){loading(false);toast('載入失敗：'+e.message);});
+}
+function renderHomeStats(d){
+  var cells=[
+    ['expected',d.expected,'應到'],['present',d.actual,'實到'],['late',d.late,'遲到'],
+    ['leave',d.leave,'合理/請假'],['absent',d.absent,'無故缺席'],['unmarked',d.unmarked,'尚未點名'],
+    ['expected',d.rate==null?'-':d.rate+'%','出席率'],['absent',d.abnormal,'異常'],['leave',d.excluded,'合理排除']
+  ];
+  $('homeStats').innerHTML=cells.map(function(c){
+    return '<div class="stat '+c[0]+'"><div class="n">'+c[1]+'</div><div class="l">'+c[2]+'</div></div>';
+  }).join('');
+}
+function renderCare(list){
+  var box=$('careList');
+  if(!list||list.length===0){box.innerHTML='<div class="empty">目前沒有需要特別關心的學生</div>';return;}
+  box.innerHTML=list.map(function(s){
+    return '<div class="care"><div class="top" style="display:flex;justify-content:space-between;align-items:center;">'+
+      '<div><span class="nm">'+esc(s.name)+'</span><span class="tag">'+esc(s.specialty)+'</span>'+
+      (s.rate!=null?' <span style="font-size:12px;color:var(--muted);">出席率'+s.rate+'%</span>':'')+'</div>'+
+      '<button class="btn sm line" onclick=\'careLine('+JSON.stringify(s).replace(/'/g,"&#39;")+')\'>個別通知</button></div>'+
+      '<div class="rs">'+s.reasons.map(function(r){return '<span>'+esc(r)+'</span>';}).join('')+'</div></div>';
+  }).join('');
+}
+
+/* ===================== 點名 ===================== */
+function loadAttend(){
+  var sp=$('atSpec').value, session=$('atSession').value, date=$('atDate').value;
+  loading(true);attendState={};curFilter='全部';
+  call('getStudents',[sp]).then(function(list){
+    localStorage.setItem('teampro_students_'+sp,JSON.stringify(list));
+    attendStudents=list.filter(function(s){return s.status==='在學';});
+    if(session==='晚自習'){
+      var wc=weekdayName(date);
+      attendStudents=attendStudents.filter(function(s){return (s.studyHall||'').indexOf(wc)>=0;});
+    }
+    fillAttendFilters();
+    return call('getAttendanceByDate',[date,session,sp]);
+  }).then(function(existing){
+    attendStudents.forEach(function(s){
+      if(existing[s.id])attendState[s.id]={status:existing[s.id].status,reason:existing[s.id].reason,lateMin:existing[s.id].lateMin,note:existing[s.id].note};
+      else attendState[s.id]={status:null,reason:'',lateMin:'',note:''};
+    });
+    renderChips();renderAttend();loading(false);
+  }).catch(function(e){loading(false);toast('載入失敗：'+e.message);});
+}
+function fillAttendFilters(){
+  var gs={}, ss={};
+  attendStudents.forEach(function(s){if(s.grade)gs[s.grade]=true;if(s.specialty)ss[s.specialty]=true;});
+  $('gradeFilter').innerHTML='<option value="">全部年級</option>'+Object.keys(gs).sort().map(function(g){return '<option>'+esc(g)+'</option>';}).join('');
+  $('specFilter').innerHTML='<option value="">全部項目</option>'+Object.keys(ss).sort().map(function(g){return '<option>'+esc(g)+'</option>';}).join('');
+}
+function renderChips(){
+  var filters=['全部','尚未點名','出席','遲到','請假','缺席','異常'];
+  $('atChips').innerHTML=filters.map(function(f){
+    return '<button class="chip'+(f===curFilter?' on':'')+'" onclick="setFilter(\''+f+'\')">'+f+countSuffix(f)+'</button>';
+  }).join('');
+  show($('atChips'));
+}
+function countSuffix(f){
+  if(f==='全部')return ' '+attendStudents.length;
+  var n=attendStudents.filter(function(s){var st=attendState[s.id].status;
+    return f==='尚未點名'?!st:f==='請假'?isLeave(st):f==='缺席'?st==='無故缺席':f==='異常'?isAbnormal(st):st===f;}).length;
+  return ' '+n;
+}
+function setFilter(f){curFilter=f;renderChips();renderAttend();}
+
+function passFilter(s){
+  var st=attendState[s.id].status;
+  var q=($('atSearch').value||'').trim();
+  var gf=$('gradeFilter').value, sf=$('specFilter').value;
+  if(q && (s.name+s.cls+s.grade+s.specialty).indexOf(q)<0)return false;
+  if(gf && s.grade!==gf)return false;
+  if(sf && s.specialty!==sf)return false;
+  if(curFilter==='全部')return true;
+  if(curFilter==='尚未點名')return !st;
+  if(curFilter==='請假')return isLeave(st);
+  if(curFilter==='缺席')return st==='無故缺席';
+  if(curFilter==='異常')return isAbnormal(st);
+  return st===curFilter;
+}
+function renderAttend(){
+  var box=$('attendList'),visible=attendStudents.filter(passFilter);
+  if(attendStudents.length===0){box.innerHTML='<div class="card empty">此條件下沒有學生（晚自習只顯示當天有報名者）</div>';hide($('attendActions'));hide($('atBar'));return;}
+  if(visible.length===0){box.innerHTML='<div class="card empty">「'+curFilter+'」沒有學生</div>';}
+  else{
+    box.innerHTML=visible.map(function(s){
+      var stt=attendState[s.id];var cls=stt.status?STATUS_CLASS[stt.status]:'';
+      var badge=stt.status?('<span class="badge '+cls+'">'+(STATUS_ICON[stt.status]||'')+' '+stt.status+'</span>'):'<span class="badge">尚未點名</span>';
+      return '<div class="card stu '+cls+'">'+
+        '<div class="top"><div><span class="name">'+esc(s.name)+'</span><span class="tag">'+esc(s.specialty)+'</span>'+
+        '<div class="meta">'+esc(s.grade)+' '+esc(s.cls)+'</div></div>'+badge+'</div>'+
+        '<div style="font-size:13px;color:var(--muted);margin-top:8px;">備註：'+esc(stt.note||'')+'</div>'+
+        '<div class="bigbtns">'+STATUS_LIST.map(function(st){
+          var actual=st==='請假'?(isLeave(stt.status)?stt.status:'病假'):(st==='缺席'?'無故缺席':st);
+          var on=(st==='請假'?isLeave(stt.status):(st==='缺席'?stt.status==='無故缺席':stt.status===st))?' on':'';
+          return '<button class="'+on.trim()+'" data-s="'+st+'" onclick="pick(\''+s.id+'\',\''+st+'\')"><span class="ic">'+STATUS_ICON[st]+'</span>'+st+'</button>';
+        }).join('')+'</div>'+
+        renderDetail(s.id)+'</div>';
+    }).join('');
+  }
+  updateBar();
+  show($('attendActions'));
+}
+function renderDetail(id){
+  var st=attendState[id];if(!st.status||st.status==='出席')return '';
+  var html='<div class="detail">';
+  if(st.status==='遲到'){
+    html+='<label style="margin:0 0 5px;">遲到時間</label><div class="miniopts">'+
+      LATE_OPTS.map(function(o){return '<button class="'+(st.lateMin===o?'on':'')+'" onclick="setLate(\''+id+'\',\''+o+'\')">'+o+'</button>';}).join('')+'</div>';
+  }
+  html+='<label style="margin:8px 0 5px;">正式狀態</label><div class="miniopts">'+
+    FULL_STATUS.map(function(o){return '<button class="'+(st.status===o?'on':'')+'" onclick="setFullStatus(\''+id+'\',\''+o+'\')">'+o+'</button>';}).join('')+'</div>';
+  html+='<input class="note" placeholder="備註（可留空）" value="'+esc(st.note)+'" oninput="setNote(\''+id+'\',this.value)">';
+  html+='</div>';
+  return html;
+}
+function pick(id,st){
+  var cur=attendState[id];
+  var mapped=st==='請假'?'病假':(st==='缺席'?'無故缺席':(st==='更多'?(cur.status||'早退'):st));
+  cur.status=(cur.status===mapped && st!=='更多')?null:mapped;
+  if(!isLeave(cur.status))cur.reason='';
+  if(cur.status!=='遲到')cur.lateMin='';
+  renderChips();renderAttend();
+}
+function setFullStatus(id,v){attendState[id].status=v;if(!isLeave(v))attendState[id].reason='';renderChips();renderAttend();}
+function setLate(id,v){attendState[id].lateMin=(attendState[id].lateMin===v)?'':v;renderAttend();}
+function setReason(id,v){attendState[id].reason=(attendState[id].reason===v)?'':v;renderAttend();}
+function setNote(id,v){attendState[id].note=v;} // 不重繪，避免打字中斷
+function markAll(st){attendStudents.forEach(function(s){var c=attendState[s.id];c.status=st;c.reason='';c.lateMin='';});renderChips();renderAttend();}
+function clearAll(){attendStudents.forEach(function(s){attendState[s.id]={status:null,reason:'',lateMin:'',note:''};});renderChips();renderAttend();}
+
+function updateBar(){
+  var c={actual:0,late:0,leave:0,absent:0,un:0,marked:0,abnormal:0};
+  attendStudents.forEach(function(s){
+    var st=attendState[s.id].status;
+    if(!st)c.un++;else{c.marked++;if(isActual(st))c.actual++;if(st==='遲到')c.late++;if(isLeave(st))c.leave++;if(st==='無故缺席')c.absent++;if(isAbnormal(st))c.abnormal++;}
+  });
+  $('atBar').innerHTML=
+    '<div class="b-exp">應到<b>'+attendStudents.length+'</b></div>'+
+    '<div class="b-present">已點<b>'+c.marked+'</b></div>'+
+    '<div class="b-present">實到<b>'+c.actual+'</b></div>'+
+    '<div class="b-late">遲到<b>'+c.late+'</b></div>'+
+    '<div class="b-absent">異常<b>'+c.abnormal+'</b></div>'+
+    '<div class="b-un">未點<b>'+c.un+'</b></div>';
+  show($('atBar'));
+}
+function submitAttend(){
+  var records=attendStudents.filter(function(s){return attendState[s.id].status;}).map(function(s){
+    var st=attendState[s.id];
+    return {id:s.id,name:s.name,grade:s.grade,cls:s.cls,specialty:s.specialty,status:st.status,reason:st.reason,lateMin:st.lateMin,note:st.note};
+  });
+  if(records.length===0){toast('尚未點選任何狀態');return;}
+  if(!confirm('確認送出 '+$('atDate').value+' '+$('atSession').value+' 點名？\n同一學生同一時段重複送出會更新原資料。'))return;
+  var payload={date:$('atDate').value,session:$('atSession').value,team:$('atSpec').value,location:$('atLocation').value,coach:$('atCoach').value,recorder:USER.name,records:records};
+  if(!navigator.onLine){localStorage.setItem('teampro_pending_attendance',JSON.stringify(payload));toast('目前離線，已暫存，恢復網路後可再送出');return;}
+  loading(true);
+  call('saveAttendance',[payload]).then(function(r){
+    loading(false);toast('已儲存（新增'+r.added+'／更新'+r.updated+'）');
+    lastLineText=r.lineText||buildText('coach',buildCtxFromLocal());
+    openLine('LINE 點名回報',lastLineText);
+  }).catch(function(e){loading(false);toast('儲存失敗：'+e.message);});
+}
+
+/* ===================== LINE 回報 ===================== */
+function buildCtxFromLocal(){
+  var c={date:$('atDate').value,session:$('atSession').value,expected:attendStudents.length,
+         actual:0,late:0,leave:0,absent:0,severe:0,lateNames:[],leaveNames:[],absentNames:[]};
+  attendStudents.forEach(function(s){
+    var rec=attendState[s.id], st=rec.status;
+    if(isActual(st))c.actual++;
+    if(st==='遲到'){c.late++;c.lateNames.push(s.name);}
+    if(isLeave(st)){c.leave++;c.leaveNames.push(s.name+'（'+(rec.note||st)+'）');}
+    if(st==='無故缺席'){c.absent++;c.severe++;c.absentNames.push(s.name+(rec.note?'（'+rec.note+'）':''));}
+  });
+  return c;
+}
+function lineFromLocal(kind){openLine(kind==='coach'?'教練群回報':'家長群回報',buildText(kind,buildCtxFromLocal()));}
+function lineFromServer(kind){
+  var today=$('lineDate')?$('lineDate').value:todayStr(),session=$('lineSession')?$('lineSession').value:autoSession(),sp=$('lineSpec')?$('lineSpec').value:homeSpecVal();
+  loading(true);
+  Promise.all([call('getStudents',[sp]),call('getAttendanceByDate',[today,session,sp])]).then(function(res){
+    loading(false);
+    var students=res[0].filter(function(s){return s.status==='在學';});
+    if(session==='晚自習'){var wc=weekdayName(today);students=students.filter(function(s){return (s.studyHall||'').indexOf(wc)>=0;});}
+    var map=res[1];
+    var c={date:today,session:session,expected:students.length,actual:0,late:0,leave:0,absent:0,severe:0,lateNames:[],leaveNames:[],absentNames:[]};
+    students.forEach(function(s){
+      var rec=map[s.id]||{}, st=rec.status;
+      if(isActual(st))c.actual++;
+      if(st==='遲到'){c.late++;c.lateNames.push(s.name);}
+      if(isLeave(st)){c.leave++;c.leaveNames.push(s.name+'（'+(rec.note||st)+'）');}
+      if(st==='無故缺席'){c.absent++;c.severe++;c.absentNames.push(s.name+(rec.note?'（'+rec.note+'）':''));}
+    });
+    openLine(kind==='coach'?'教練群回報':'家長群回報',buildText(kind,c));
+  }).catch(function(e){loading(false);toast('讀取失敗：'+e.message);});
+}
+function nm(arr){return arr.length?arr.join('、'):'無';}
+function buildText(kind,c){
+  if(kind==='coach'){
+    return '育林體育班｜'+c.date+' '+c.session+' 點名\n\n'+
+      '應到：'+c.expected+'人\n'+
+      '實到：'+c.actual+'人\n'+
+      '遲到：'+c.late+'人\n'+
+      '請假：'+c.leave+'人\n'+
+      '缺席：'+c.absent+'人\n'+
+      '無故缺席：'+c.severe+'人\n\n'+
+      '遲到：\n'+nm(c.lateNames)+'\n\n'+
+      '請假：\n'+nm(c.leaveNames)+'\n\n'+
+      '缺席：\n'+nm(c.absentNames)+'\n\n'+
+      '今日點名已完成。';
+  }
+  // 家長群：溫和、不點名個別學生
+  var t='【'+c.date+' 育林體育班 出席通知】\n親愛的家長您好：\n';
+  t+='今日「'+c.session+'」點名已完成，應到 '+c.expected+' 人、實際到場 '+c.actual+' 人。\n';
+  if(c.absent>0||c.late>0)t+='部分孩子今日未到或遲到，老師會個別關心，若有狀況也歡迎主動與教練聯繫。\n';
+  else t+='今日全員到齊，感謝家長協助 👍\n';
+  t+='懇請家長協助督促孩子準時參加訓練，謝謝配合！';
+  return t;
+}
+function loadLineCare(){
+  loading(true);
+  call('getCareList',[$('lineSpec').value]).then(function(list){
+    loading(false);
+    var box=$('lineCareList');
+    if(!list||!list.length){box.innerHTML='<div class="empty">目前沒有異常學生</div>';return;}
+    box.innerHTML=list.map(function(s){
+      return '<div class="care"><div class="nm">'+esc(s.name)+' <span class="tag">'+esc(s.specialty)+'</span></div>'+
+        '<div class="rs">'+s.reasons.map(function(r){return '<span>'+esc(r)+'</span>';}).join('')+'</div>'+
+        '<button class="btn sm line" onclick="parentNotice(\''+s.id+'\',\''+(s.reasons.join('').indexOf('遲到')>=0?'遲到':'無故缺席')+'\')">個別家長通知</button></div>';
+    }).join('');
+  }).catch(function(e){loading(false);toast('讀取失敗：'+e.message);});
+}
+function parentNotice(id,status){
+  loading(true);
+  call('buildParentNotice',[id,status,$('lineDate').value,$('lineSession').value]).then(function(t){loading(false);openLine('個別家長通知',t);})
+    .catch(function(e){loading(false);toast('產生失敗：'+e.message);});
+}
+function careLine(s){
+  var t='家長您好：\n關於 '+s.name+' 同學，';
+  if(s.reasons.join('').indexOf('未到')>=0)
+    t+='今天訓練未到，目前尚未收到請假訊息，想跟您確認孩子狀況，謝謝。';
+  else if(s.reasons.join('').indexOf('遲到')>=0)
+    t+='近期到場時間較晚（'+s.reasons.join('、')+'），想請家長協助提醒孩子提早出門，謝謝。';
+  else
+    t+='近期出席情形需要留意（'+s.reasons.join('、')+'），想與家長一起關心孩子，謝謝。';
+  openLine('個別家長通知 - '+s.name,t);
+}
+
+/* ===================== 報表 ===================== */
+function setRange(r){curRange=r;document.querySelectorAll('#rpRanges button').forEach(function(b){b.classList.toggle('on',b.dataset.r===r);});loadReport();}
+function loadReport(){
+  loading(true);
+  call('getReport',[curRange,$('rpSpec').value,$('rpDate').value]).then(function(rep){
+    loading(false);lastReport=rep;renderReport(rep);
+  }).catch(function(e){loading(false);toast('產生失敗：'+e.message);});
+}
+function renderReport(rep){
+  $('rpTeam').textContent=rep.teamRate==null?'-':rep.teamRate+'%';
+  $('rpRangeTxt').textContent=rep.from+' ~ '+rep.to+'｜總課程數 '+rep.summary.total+'｜實到 '+rep.summary.actual+'｜異常 '+rep.summary.abnormal;
+  var box=$('reportTable');
+  if(!rep.students.length){box.innerHTML='<div class="empty">無學生資料</div>';return;}
+  var rank='<div class="row2" style="margin-bottom:10px;"><div class="care"><b>缺席排行榜</b><br>'+rankText(rep.absentRank,'absent')+'</div><div class="care"><b>遲到排行榜</b><br>'+rankText(rep.lateRank,'late')+'</div></div>';
+  rank+='<div class="care" style="margin-bottom:10px;"><b>異常學生名單</b><br>'+rankText(rep.abnormalStudents,'abnormal')+'</div>';
+  var html=rank+'<table><thead><tr><th class="name">姓名</th><th>總</th><th>出</th><th>遲</th><th>假</th><th>曠</th><th>率</th></tr></thead><tbody>';
+  rep.students.forEach(function(s){
+    html+='<tr><td class="name">'+esc(s.name)+'<div style="font-size:11px;color:var(--muted);">'+esc(s.grade)+' '+esc(s.cls)+' '+esc(s.specialty)+'</div></td><td>'+s.total+'</td><td>'+s.present+'</td><td>'+s.late+'</td><td>'+s.leave+'</td><td>'+s.absent+'</td>'+
+      '<td>'+(s.rate==null?'-':s.rate+'%')+'</td></tr>';
+  });
+  html+='</tbody></table>';box.innerHTML=html;
+}
+function rankText(list,key){
+  if(!list||!list.length)return '無';
+  return list.slice(0,8).map(function(s){var v=key==='late'?s.late:(key==='absent'?s.absent:s.abnormal);return esc(s.name)+' '+v+'次';}).join('、');
+}
+function exportToSheet(){
+  var ref=$('exportMonth')&&$('exportMonth').value?$('exportMonth').value+'-01':$('rpDate').value;
+  var sp=$('exportSpec')?$('exportSpec').value:$('rpSpec').value;
+  var type=$('exportType')?$('exportType').value:'全隊出勤月報';
+  loading(true);
+  call('exportReport',['month',sp,ref,type]).then(function(r){
+    loading(false);toast('已匯出到試算表「報表」分頁（'+r.count+'筆）');
+  }).catch(function(e){loading(false);toast('匯出失敗：'+e.message);});
+}
+function copyCSV(){
+  if(!lastReport){toast('請先產生報表');return;}
+  var rows=[['學生姓名','年級','班級','項目','總課程數','出席次數','遲到次數','請假次數','無故缺席次數','出席率','備註']];
+  lastReport.students.forEach(function(s){rows.push([s.name,s.grade,s.cls,s.specialty,s.total,s.present,s.late,s.leave,s.absent,s.rate==null?'':s.rate+'%',s.abnormal?'異常 '+s.abnormal:'']);});
+  var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  openLine('報表 CSV（複製後貼到 Excel/Sheets）',csv);
+}
+
+/* ===================== 學生 ===================== */
+function buildStudyHallBoxes(){
+  $('f_studyHall').innerHTML=WEEK_CH.map(function(c){
+    return '<button type="button" class="shd" data-d="'+c+'" onclick="this.classList.toggle(\'on\')">週'+c+'</button>';
+  }).join('');
+}
+function loadStudents(){
+  loading(true);
+  call('getStudents',[$('stSpec').value]).then(function(list){renderStudents(list);loading(false);})
+    .catch(function(e){loading(false);toast('載入失敗：'+e.message);});
+}
+function renderStudents(list){
+  var box=$('studentList');
+  if(!list.length){box.innerHTML='<div class="card empty">無學生資料</div>';return;}
+  box.innerHTML=list.map(function(s){
+    return '<div class="card stu"><div class="top"><div><span class="name">'+esc(s.name)+'</span><span class="tag">'+esc(s.specialty)+'</span>'+
+      '<div class="meta">'+esc(s.grade)+' '+esc(s.cls)+'　ID:'+esc(s.id)+'</div>'+
+      '<div class="meta">家長：'+esc(s.parentName||'-')+'　'+esc(s.parentContact||'')+'</div></div>'+
+      '<span class="tag">'+esc(s.status)+'</span></div>'+
+      '<div class="bigbtns" style="grid-template-columns:repeat('+(USER.role==='admin'?3:1)+',1fr);">'+
+        '<button style="background:#eef3fa;color:var(--navy);border-color:transparent" onclick="showHistory(\''+s.id+'\',\''+esc(s.name)+'\')">📅 紀錄</button>'+
+        (USER.role==='admin'?
+          '<button style="background:#fff" onclick=\'openStudentForm('+JSON.stringify(s).replace(/'/g,"&#39;")+')\'>✏️ 編輯</button>'+
+          '<button style="background:#fae6e5;color:var(--red);border-color:transparent" onclick="delStudent(\''+s.id+'\')">🗑 刪除</button>':'')+
+      '</div></div>';
+  }).join('');
+}
+function showHistory(id,name){
+  loading(true);
+  call('getStudentHistory',[id,40]).then(function(rows){
+    loading(false);$('histTitle').textContent='📅 '+name+' 出席紀錄';
+    var b=$('histBody');
+    if(!rows.length){b.innerHTML='<div class="empty">尚無紀錄</div>';}
+    else{
+      b.innerHTML='<div class="tablewrap"><table><thead><tr><th>日期</th><th>時段</th><th>狀態</th><th>備註</th></tr></thead><tbody>'+
+        rows.map(function(r){
+          var extra=r.reason||r.lateMin||'';if(r.note)extra+=(extra?' / ':'')+r.note;
+          return '<tr><td>'+esc(r.date)+'(<b>'+esc(r.weekday)+'</b>)</td><td>'+esc(r.session)+'</td><td>'+STATUS_ICON[r.status]+esc(r.status)+'</td><td>'+esc(extra)+'</td></tr>';
+        }).join('')+'</tbody></table></div>';
+    }
+    show($('histModal'));
+  }).catch(function(e){loading(false);toast('讀取失敗：'+e.message);});
+}
+function openStudentForm(s){
+  $('stuFormTitle').textContent=s?'編輯學生':'新增學生';
+  $('f_id').value=s?s.id:'';$('f_id').readOnly=!!s;
+  $('f_name').value=s?s.name:'';$('f_grade').value=s?s.grade:'';$('f_cls').value=s?s.cls:'';
+  $('f_specialty').value=s?s.specialty:$('f_specialty').options[0].value;
+  $('f_pname').value=s?(s.parentName||''):'';$('f_pcontact').value=s?(s.parentContact||''):'';
+  $('f_pcode').value=s?(s.parentCode||''):'';$('f_status').value=s?s.status:'在學';
+  var sh=(s&&s.studyHall)?s.studyHall:'';
+  document.querySelectorAll('#f_studyHall .shd').forEach(function(b){b.classList.toggle('on',sh.indexOf(b.dataset.d)>=0);});
+  show($('studentModal'));
+}
+function saveStudentForm(){
+  var sh='';document.querySelectorAll('#f_studyHall .shd').forEach(function(b){if(b.classList.contains('on'))sh+=b.dataset.d;});
+  var s={id:$('f_id').value.trim(),name:$('f_name').value.trim(),grade:$('f_grade').value.trim(),cls:$('f_cls').value.trim(),
+    specialty:$('f_specialty').value,parentName:$('f_pname').value.trim(),parentContact:$('f_pcontact').value.trim(),
+    parentCode:$('f_pcode').value.trim(),status:$('f_status').value,studyHall:sh};
+  if(!s.id||!s.name){toast('學生ID與姓名必填');return;}
+  loading(true);
+  call('saveStudent',[s]).then(function(r){loading(false);closeModal('studentModal');toast(r.message);loadStudents();})
+    .catch(function(e){loading(false);toast('儲存失敗：'+e.message);});
+}
+function delStudent(id){
+  if(!confirm('確定刪除此學生？'))return;
+  loading(true);
+  call('deleteStudent',[id]).then(function(){loading(false);toast('已刪除');loadStudents();})
+    .catch(function(e){loading(false);toast('刪除失敗：'+e.message);});
+}
+
+/* ===================== Modal / LINE ===================== */
+function closeModal(id){hide($(id));}
+function openLine(title,text){$('lineTitle').textContent=title;$('lineText').value=text;show($('lineModal'));}
+function copyLine(){
+  var ta=$('lineText');ta.select();ta.setSelectionRange(0,99999);
+  try{
+    if(navigator.clipboard){navigator.clipboard.writeText(ta.value).then(function(){toast('已複製');});}
+    else{document.execCommand('copy');toast('已複製');}
+  }catch(e){toast('請長按文字手動複製');}
+}
+
+/* ===================== 啟動 ===================== */
+(function init(){
+  setupPwa();
+  var saved=localStorage.getItem('user');
+  if(saved){try{USER=JSON.parse(saved);enterApp();return;}catch(e){}}
+  loadLoginUsers();
+})();
+</script>
+</body>
+</html>

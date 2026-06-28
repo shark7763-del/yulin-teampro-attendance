@@ -1,0 +1,25 @@
+{
+  "name": "TeamPro 體育班出勤戰情室",
+  "short_name": "TeamPro出勤",
+  "description": "體育班教練、體育組長與學校評鑑用出勤戰情室",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eef2f7",
+  "theme_color": "#1e3a5f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
