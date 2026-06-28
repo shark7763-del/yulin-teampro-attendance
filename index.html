@@ -148,7 +148,7 @@
   #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy-dark);color:#fff;
          padding:12px 22px;border-radius:24px;font-size:14px;z-index:200;opacity:0;transition:.3s;pointer-events:none;max-width:90%;}
   #toast.show{opacity:.96;}
-  #installAppBtn{position:fixed;right:14px;bottom:64px;z-index:120;background:var(--green);color:#fff;border:none;
+  #installAppBtn{position:fixed;right:14px;bottom:82px;z-index:120;background:var(--green);color:#fff;border:none;
          border-radius:999px;padding:11px 15px;font-size:14px;font-weight:800;box-shadow:0 4px 12px rgba(30,58,95,.22);}
   #netStatus{position:fixed;left:0;right:0;bottom:0;z-index:130;background:#d9433f;color:#fff;text-align:center;
          padding:9px 12px;font-size:13px;font-weight:700;}
@@ -215,6 +215,7 @@
         <button class="btn ghost" onclick="switchTab('report')">本月統計</button>
         <button class="btn line" onclick="switchTab('line')">LINE 回報</button>
         <button class="btn ghost" onclick="switchTab('export')">報表匯出</button>
+        <button class="btn green" onclick="openInstallApp()">安裝 App</button>
       </div>
       <div class="card">
         <h2>異常學生優先追蹤</h2>
@@ -359,7 +360,7 @@
 </div>
 
 <div id="toast"></div>
-<button id="installAppBtn" type="button">安裝教學</button>
+<button id="installAppBtn" type="button">安裝 App</button>
 <div id="netStatus" class="hidden">目前離線，送出資料前請確認網路已恢復</div>
 <div id="loading" class="hidden"><div class="spin"></div></div>
 
@@ -385,17 +386,9 @@ function setupPwa(){
     deferredInstallPrompt=e;
     installNowBtn.classList.remove('hidden');
   });
-  installBtn.addEventListener('click',function(){
-    renderInstallGuide();
-    show($('installGuideModal'));
-  });
+  installBtn.addEventListener('click',openInstallApp);
   installNowBtn.addEventListener('click',function(){
-    if(!deferredInstallPrompt){
-      toast('請用瀏覽器選單「加入主畫面」安裝');
-      return;
-    }
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.finally(function(){deferredInstallPrompt=null;});
+    runInstallPrompt();
   });
   window.addEventListener('appinstalled',function(){installNowBtn.classList.add('hidden');toast('App 已安裝');});
 
@@ -409,6 +402,19 @@ function setupPwa(){
   if('serviceWorker' in navigator && !isAppsScript){
     navigator.serviceWorker.register('./service-worker.js').catch(function(){});
   }
+}
+function openInstallApp(){
+  if(deferredInstallPrompt){runInstallPrompt();return;}
+  renderInstallGuide();
+  show($('installGuideModal'));
+}
+function runInstallPrompt(){
+  if(!deferredInstallPrompt){
+    toast('請用瀏覽器選單「加入主畫面」安裝');
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.finally(function(){deferredInstallPrompt=null;renderInstallGuide();});
 }
 function syncPendingAttendance(){
   var raw=localStorage.getItem('teampro_pending_attendance');
