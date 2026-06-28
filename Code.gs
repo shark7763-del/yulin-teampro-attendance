@@ -139,6 +139,19 @@ function genCode() {
   for (var i = 0; i < 6; i++) s += chars.charAt(Math.floor(Math.random() * chars.length));
   return s;
 }
+function makeStudentId(s, existing) {
+  var cls = String(s.cls || '').replace(/\D/g, '') || String(s.grade || '').replace(/\D/g, '') || 'STU';
+  var name = String(s.name || '').replace(/\s/g, '');
+  var seed = 0;
+  for (var i = 0; i < name.length; i++) seed += name.charCodeAt(i);
+  var suffix = ('00' + (seed % 100)).slice(-2);
+  var base = cls + '-' + suffix;
+  var id = base, n = 1;
+  while (existing[id]) {
+    id = base + '-' + (++n);
+  }
+  return id;
+}
 
 /* ===================== 一鍵匯入名單 ===================== */
 function importRoster() {
@@ -217,6 +230,9 @@ function getStudents(specialty) {
 }
 function saveStudent(s) {
   var sh = getSS().getSheetByName(SHEET_STUDENTS), data = sh.getDataRange().getValues();
+  var existing = {};
+  for (var e = 1; e < data.length; e++) if (data[e][0]) existing[String(data[e][0])] = true;
+  if (!String(s.id || '').trim()) s.id = makeStudentId(s, existing);
   for (var i = 1; i < data.length; i++) {
     if (String(data[i][0]) === String(s.id)) {
       sh.getRange(i + 1, 1, 1, 10).setValues([[

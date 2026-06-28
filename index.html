@@ -329,7 +329,7 @@
 <div id="studentModal" class="modal hidden">
   <div class="box">
     <h3 id="stuFormTitle">新增學生</h3>
-    <div class="row2"><div><label>學生ID</label><input id="f_id"></div><div><label>姓名</label><input id="f_name"></div></div>
+    <div class="row2"><div><label>學生ID（留空自動產生）</label><input id="f_id" placeholder="可留空"></div><div><label>姓名</label><input id="f_name"></div></div>
     <div class="row2"><div><label>年級</label><input id="f_grade" placeholder="七年級"></div><div><label>班級</label><input id="f_cls" placeholder="701"></div></div>
     <label>專項</label><select id="f_specialty"></select>
     <div class="row2"><div><label>家長姓名</label><input id="f_pname"></div><div><label>家長LINE/聯絡</label><input id="f_pcontact"></div></div>
@@ -947,7 +947,7 @@ function saveStudentForm(){
   var s={id:$('f_id').value.trim(),name:$('f_name').value.trim(),grade:$('f_grade').value.trim(),cls:$('f_cls').value.trim(),
     specialty:$('f_specialty').value,parentName:$('f_pname').value.trim(),parentContact:$('f_pcontact').value.trim(),
     parentCode:$('f_pcode').value.trim(),status:$('f_status').value,studyHall:sh};
-  if(!s.id||!s.name){toast('學生ID與姓名必填');return;}
+  if(!s.name){toast('姓名必填，學生ID可留空自動產生');return;}
   loading(true);
   call('saveStudent',[s]).then(function(r){loading(false);closeModal('studentModal');toast(r.message);loadStudents();})
     .catch(function(e){loading(false);toast('儲存失敗：'+e.message);});
