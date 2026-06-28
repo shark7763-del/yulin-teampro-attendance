@@ -111,6 +111,8 @@ function upgradeSchema() {
   if (st) {
     var sh = st.getRange(1, 1, 1, Math.max(st.getLastColumn(), 10)).getValues()[0];
     if (sh[9] !== '晚自習報名') { st.getRange(1, 10).setValue('晚自習報名'); msg.push('Students 補「晚自習報名」'); }
+    var filled = fillMissingParentCodes();
+    if (filled.updated) msg.push('Students 補「家長查詢碼」' + filled.updated + ' 筆');
   }
   var at = ss.getSheetByName(SHEET_ATT);
   if (!at) { at = getOrCreateSheet(ss, SHEET_ATT); at.appendRow(ATT_HEADERS); formatHeader(at); msg.push('建立 Attendance'); }
@@ -235,15 +237,38 @@ function saveStudent(s) {
   if (!String(s.id || '').trim()) s.id = makeStudentId(s, existing);
   for (var i = 1; i < data.length; i++) {
     if (String(data[i][0]) === String(s.id)) {
+      var parentCode = String(s.parentCode || data[i][7] || '').trim() || genCode();
       sh.getRange(i + 1, 1, 1, 10).setValues([[
         s.id, s.name, s.grade, s.cls, s.specialty, s.parentName, s.parentContact,
-        s.parentCode || data[i][7], s.status || '在學', s.studyHall || '']]);
+        parentCode, s.status || '在學', s.studyHall || '']]);
       return { ok: true, message: '已更新' };
     }
   }
+  var newParentCode = String(s.parentCode || '').trim() || genCode();
   sh.appendRow([s.id, s.name, s.grade, s.cls, s.specialty, s.parentName, s.parentContact,
-                s.parentCode || genCode(), s.status || '在學', s.studyHall || '']);
+                newParentCode, s.status || '在學', s.studyHall || '']);
   return { ok: true, message: '已新增' };
+}
+
+function fillMissingParentCodes() {
+  var sh = getSS().getSheetByName(SHEET_STUDENTS), data = sh.getDataRange().getValues();
+  if (data.length < 2) return { ok: true, updated: 0 };
+  var used = {};
+  for (var i = 1; i < data.length; i++) {
+    var code = String(data[i][7] || '').trim();
+    if (code) used[code] = true;
+  }
+  var updated = 0;
+  for (var r = 1; r < data.length; r++) {
+    var code2 = String(data[r][7] || '').trim();
+    if (code2) continue;
+    var next = genCode();
+    while (used[next]) next = genCode();
+    sh.getRange(r + 1, 8).setValue(next);
+    used[next] = true;
+    updated++;
+  }
+  return { ok: true, updated: updated };
 }
 function deleteStudent(id) {
   var sh = getSS().getSheetByName(SHEET_STUDENTS), data = sh.getDataRange().getValues();
